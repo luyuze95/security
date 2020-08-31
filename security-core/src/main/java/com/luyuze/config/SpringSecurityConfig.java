@@ -53,6 +53,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 //        http.httpBasic()  // 采用httpBasic认证方式
         http.formLogin() // 表单登陆方式
+                .loginPage("/login/page")
                 .and()
                 .authorizeRequests()  // 认证请求
                 .anyRequest().authenticated()  // 所有访问该应用的http请求都要通过身份认证才可以访问
