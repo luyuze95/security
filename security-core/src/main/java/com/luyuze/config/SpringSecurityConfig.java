@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -54,9 +55,24 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 //        http.httpBasic()  // 采用httpBasic认证方式
         http.formLogin() // 表单登陆方式
                 .loginPage("/login/page")
+                .loginProcessingUrl("/login/form") // 登陆表单提交处理url，默认是/login
+                .usernameParameter("name")  // 默认的是username
+                .passwordParameter("pwd")  // 默认的是password
                 .and()
                 .authorizeRequests()  // 认证请求
+                .antMatchers("/login/page").permitAll() // 放行/login/page 不需要认证可访问
                 .anyRequest().authenticated()  // 所有访问该应用的http请求都要通过身份认证才可以访问
         ;
+    }
+
+    /**
+     * 一般是针对静态资源放行
+     *
+     * @param web
+     */
+    @Override
+    public void configure(WebSecurity web) {
+        web.ignoring()
+                .antMatchers("/dist/**", "/modules/**", "/plugins/**");
     }
 }
