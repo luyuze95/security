@@ -1,7 +1,9 @@
 package com.luyuze.config;
 
+import com.luyuze.properties.SecurityProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -9,6 +11,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -18,6 +21,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
     Logger logger = LoggerFactory.getLogger(getClass());
+
+    @Autowired
+    UserDetailsService customUserDetailsService;
+
+    // 配置文件参数
+    @Autowired
+    private SecurityProperties securityProperties;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -34,13 +44,14 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        String password = passwordEncoder().encode("1234");
-        logger.info("加密之后存储的密码：" + password);
-        // 数据库存储的密码必须是加密后的，不然会报错 : There is no PasswordEncoder mapped for the id "null"
-        auth.inMemoryAuthentication()
-                .withUser("luyuze")
-                .password(password)
-                .authorities("ADMIN");
+//        String password = passwordEncoder().encode("1234");
+//        logger.info("加密之后存储的密码：" + password);
+//        // 数据库存储的密码必须是加密后的，不然会报错 : There is no PasswordEncoder mapped for the id "null"
+//        auth.inMemoryAuthentication()
+//                .withUser("luyuze")
+//                .password(password)
+//                .authorities("ADMIN");
+        auth.userDetailsService(customUserDetailsService);
     }
 
     /**
@@ -54,13 +65,13 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
 //        http.httpBasic()  // 采用httpBasic认证方式
         http.formLogin() // 表单登陆方式
-                .loginPage("/login/page")
-                .loginProcessingUrl("/login/form") // 登陆表单提交处理url，默认是/login
-                .usernameParameter("name")  // 默认的是username
-                .passwordParameter("pwd")  // 默认的是password
+                .loginPage(securityProperties.getAuthentication().getLoginPage())
+                .loginProcessingUrl(securityProperties.getAuthentication().getLoginProcessingUrl()) // 登陆表单提交处理url，默认是/login
+                .usernameParameter(securityProperties.getAuthentication().getUsernameParameter())  // 默认的是username
+                .passwordParameter(securityProperties.getAuthentication().getPasswordParameter())  // 默认的是password
                 .and()
                 .authorizeRequests()  // 认证请求
-                .antMatchers("/login/page").permitAll() // 放行/login/page 不需要认证可访问
+                .antMatchers(securityProperties.getAuthentication().getLoginPage()).permitAll() // 放行/login/page 不需要认证可访问
                 .anyRequest().authenticated()  // 所有访问该应用的http请求都要通过身份认证才可以访问
         ;
     }
