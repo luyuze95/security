@@ -1,5 +1,8 @@
 package com.luyuze.properties;
 
+import lombok.Data;
+
+@Data
 public class AuthenticationProperties {
 
     private String loginPage = "/login/page";
@@ -12,43 +15,7 @@ public class AuthenticationProperties {
 
     private String[] staticPaths = {"/dist/**", "/modules/**", "/plugins/**"};
 
-    public String getLoginPage() {
-        return loginPage;
-    }
+    // 认证响应的类型  JSON、REDIRECT
+    private LoginResponseType loginType = LoginResponseType.REDIRECT;
 
-    public void setLoginPage(String loginPage) {
-        this.loginPage = loginPage;
-    }
-
-    public String getLoginProcessingUrl() {
-        return loginProcessingUrl;
-    }
-
-    public void setLoginProcessingUrl(String loginProcessingUrl) {
-        this.loginProcessingUrl = loginProcessingUrl;
-    }
-
-    public String getUsernameParameter() {
-        return usernameParameter;
-    }
-
-    public void setUsernameParameter(String usernameParameter) {
-        this.usernameParameter = usernameParameter;
-    }
-
-    public String getPasswordParameter() {
-        return passwordParameter;
-    }
-
-    public void setPasswordParameter(String passwordParameter) {
-        this.passwordParameter = passwordParameter;
-    }
-
-    public String[] getStaticPaths() {
-        return staticPaths;
-    }
-
-    public void setStaticPaths(String[] staticPaths) {
-        this.staticPaths = staticPaths;
-    }
 }
