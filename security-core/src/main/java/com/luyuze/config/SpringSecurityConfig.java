@@ -18,6 +18,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+
+import javax.sql.DataSource;
 
 
 @Configuration
@@ -28,6 +31,22 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     UserDetailsService customUserDetailsService;
+
+    @Autowired
+    DataSource dataSource;
+
+    /**
+     * 记住我功能
+     *
+     * @return
+     */
+    @Bean
+    public JdbcTokenRepositoryImpl jdbcTokenRepository() {
+        JdbcTokenRepositoryImpl jdbcTokenRepository = new JdbcTokenRepositoryImpl();
+        jdbcTokenRepository.setDataSource(dataSource);
+//        jdbcTokenRepository.setCreateTableOnStartup(true); // 是否启动项目时自动创建表
+        return jdbcTokenRepository;
+    }
 
     // 配置文件参数
     @Autowired
@@ -90,6 +109,10 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(securityProperties.getAuthentication().getLoginPage(),
                         "/code/image").permitAll() // 放行/login/page 不需要认证可访问
                 .anyRequest().authenticated()  // 所有访问该应用的http请求都要通过身份认证才可以访问
+                .and()
+                .rememberMe() // 记住功能配置
+                .tokenRepository(jdbcTokenRepository()) // 保存登陆信息
+                .tokenValiditySeconds(60 * 60 * 24 * 7) // 记住我有效时长
         ;
     }
 

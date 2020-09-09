@@ -2,6 +2,12 @@ server:
   port: 80
 
 spring:
+  # 数据源配置
+  datasource:
+    username: root
+    password: lyz950725
+    url: jdbc:mysql://localhost:3306/security?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=utf8
+    driver-class-name: com.mysql.cj.jdbc.Driver
   thymeleaf:
     cache: false # 关闭thymeleaf缓存
 
