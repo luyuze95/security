@@ -1,13 +1,23 @@
 package com.luyuze.authentication.mobile;
 
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 /**
  * 手机认证处理提供者
  */
 public class MobileAuthenticationProvider implements AuthenticationProvider {
+
+    private UserDetailsService userDetailsService;
+
+    public void setUserDetailsService(UserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
+
     /**
      * 认证处理：
      * 1、通过手机号码查询用户信息（UserDetailsService实现）
@@ -18,7 +28,21 @@ public class MobileAuthenticationProvider implements AuthenticationProvider {
      */
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        return null;
+        MobileAuthenticationToken mobileAuthenticationToken = (MobileAuthenticationToken) authentication;
+        // 获取手机号码
+        String mobile = (String) mobileAuthenticationToken.getPrincipal();
+        // 通过手机号码， 查询用户信息 （UserDetailsService实现）
+        UserDetails userDetails = userDetailsService.loadUserByUsername(mobile);
+
+        // 如果认证失败
+        if (userDetails == null) {
+            throw new AuthenticationServiceException("该手机号码未注册");
+        }
+        // 如果认证成功
+        // 封装到MobileAuthenticationToken
+        MobileAuthenticationToken authenticationToken = new MobileAuthenticationToken(userDetails, userDetails.getAuthorities());
+        authenticationToken.setDetails(mobileAuthenticationToken.getDetails());
+        return authenticationToken;
     }
 
     /**
