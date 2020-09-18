@@ -3,6 +3,7 @@ package com.luyuze.authentication;
 import com.luyuze.properties.LoginResponseType;
 import com.luyuze.properties.SecurityProperties;
 import com.luyuze.result.CommonResult;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
@@ -38,7 +39,13 @@ public class CustomAuthenticationFailureHandler extends SimpleUrlAuthenticationF
             httpServletResponse.setContentType("application/json;charset=UTF-8");
             httpServletResponse.getWriter().write(result.toJsonString());
         } else {
-            super.setDefaultFailureUrl(securityProperties.getAuthentication().getLoginPage() + "?error");
+//            super.setDefaultFailureUrl(securityProperties.getAuthentication().getLoginPage() + "?error");
+            // 获取上次的请求路径
+            String referer = httpServletRequest.getHeader("Referer");
+            logger.info("referer: " + referer);
+            String lastUrl = StringUtils.substringBefore(referer, "?");
+            logger.info("上次请求的路径: " + lastUrl);
+            super.setDefaultFailureUrl(lastUrl + "?error");
             super.onAuthenticationFailure(httpServletRequest, httpServletResponse, e);
         }
     }

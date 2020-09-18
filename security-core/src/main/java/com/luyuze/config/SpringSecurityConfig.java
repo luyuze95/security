@@ -1,6 +1,8 @@
 package com.luyuze.config;
 
 import com.luyuze.authentication.code.ImageCodeValidateFilter;
+import com.luyuze.authentication.mobile.MobileAuthenticationConfig;
+import com.luyuze.authentication.mobile.MobileValidateFilter;
 import com.luyuze.properties.SecurityProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +36,14 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     DataSource dataSource;
+
+    // 校验手机验证码
+    @Autowired
+    private MobileValidateFilter mobileValidateFilter;
+
+    // 校验手机号是否存在
+    @Autowired
+    private MobileAuthenticationConfig mobileAuthenticationConfig;
 
     /**
      * 记住我功能
@@ -96,7 +106,8 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
 //        http.httpBasic()  // 采用httpBasic认证方式
-        http.addFilterBefore(imageCodeValidateFilter, UsernamePasswordAuthenticationFilter.class)
+        http.addFilterBefore(mobileValidateFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(imageCodeValidateFilter, UsernamePasswordAuthenticationFilter.class)
                 .formLogin() // 表单登陆方式
                 .loginPage(securityProperties.getAuthentication().getLoginPage())
                 .loginProcessingUrl(securityProperties.getAuthentication().getLoginProcessingUrl()) // 登陆表单提交处理url，默认是/login
@@ -116,6 +127,9 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .tokenRepository(jdbcTokenRepository()) // 保存登陆信息
                 .tokenValiditySeconds(60 * 60 * 24 * 7) // 记住我有效时长
         ;
+
+        // 将手机认证添加到过滤器链上
+        http.apply(mobileAuthenticationConfig);
     }
 
     /**
