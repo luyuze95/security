@@ -23,3 +23,7 @@ luyuze:
         - /modules/**
         - /plugins/**
       loginType: REDIRECT # 认证之后响应的类型： JSON/REDIRECT
+      imageCodeUrl: /code/image # 获取图形验证码地址
+      mobileCodeUrl: /code/mobile # 发送手机验证码地址
+      mobilePage: /mobile/page # 前往手机登陆页面
+      tokenValiditySeconds: 604800

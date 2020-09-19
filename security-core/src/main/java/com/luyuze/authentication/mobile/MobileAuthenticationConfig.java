@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.DefaultSecurityFilterChain;
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Component;
 
@@ -31,6 +32,9 @@ public class MobileAuthenticationConfig extends SecurityConfigurerAdapter<Defaul
         MobileAuthenticationFilter mobileAuthenticationFilter = new MobileAuthenticationFilter();
         // 获取容器中已经存在的AuthenticationManager对象，并传入 mobileAuthenticationFilter 里面
         mobileAuthenticationFilter.setAuthenticationManager(http.getSharedObject(AuthenticationManager.class));
+
+        // 指定记住我功能
+        mobileAuthenticationFilter.setRememberMeServices(http.getSharedObject(RememberMeServices.class));
 
         // 传入 失败与成功处理器
         mobileAuthenticationFilter.setAuthenticationSuccessHandler(customAuthenticationSuccessHandler);
